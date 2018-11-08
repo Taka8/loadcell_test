@@ -7,12 +7,6 @@ long AE_HX711_Averaging(long adc,char num);
 float AE_HX711_getGram(char num);
 
 //---------------------------------------------------//
-// ピンの設定
-//---------------------------------------------------//
-#define pin_dout  2		
-#define pin_slk   3		// pwm出力が必要
-
-//---------------------------------------------------//
 // ロードセル　シングルポイント（ ビーム型）　ＳＣ６０１　１２０ｋＧ [P-12035]
 //---------------------------------------------------//
 #define OUT_VOL   0.001f      //定格出力 [V]
@@ -23,7 +17,8 @@ struct LoadcellPin {
 	int slk;
 };
 
-struct LoadcellPin loadcell_pin[2] =
+// ピンの設定
+struct LoadcellPin pins[2] =
 {
 	{ 2, 3 },
 	{ 8, 9 }
@@ -54,35 +49,35 @@ void loop()
 
 void AE_HX711_Init(void)
 {
-  pinMode(pin_slk, OUTPUT);
-  pinMode(pin_dout, INPUT);
+  pinMode(pins[0].slk, OUTPUT);
+  pinMode(pins[0].dout, INPUT);
 }
 
 void AE_HX711_Reset(void)
 {
-  digitalWrite(pin_slk,1);
+  digitalWrite(pins[0].slk, 1);
   delayMicroseconds(100);
-  digitalWrite(pin_slk,0);
+  digitalWrite(pins[0].slk, 0);
   delayMicroseconds(100); 
 }
 
 long AE_HX711_Read(void)
 {
   long data=0;
-  while(digitalRead(pin_dout)!=0);
+  while(digitalRead(pins[0].dout)!=0);
   delayMicroseconds(10);
   for(int i=0;i<24;i++)
   {
-    digitalWrite(pin_slk,1);
+    digitalWrite(pins[0].slk, 1);
     delayMicroseconds(5);
-    digitalWrite(pin_slk,0);
+    digitalWrite(pins[0].slk, 0);
     delayMicroseconds(5);
-    data = (data<<1)|(digitalRead(pin_dout));
+    data = (data<<1)|(digitalRead(pins[0].dout));
   }
   //Serial.println(data,HEX);   
-  digitalWrite(pin_slk,1);
+  digitalWrite(pins[0].slk,1);
   delayMicroseconds(10);
-  digitalWrite(pin_slk,0);
+  digitalWrite(pins[0].slk,0);
   delayMicroseconds(10);
   return data^0x800000; 
 }
