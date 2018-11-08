@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Custom
+/__vm/
+/Debug/
+*.sln
+*.vcxproj
+*.filters
+*.suo
