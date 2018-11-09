@@ -36,7 +36,7 @@ void setup() {
 	Serial.println("AE_HX711 test");
 	AE_HX711_Init();
 	AE_HX711_Reset();
-	offset = AE_HX711_getGram(30);
+	offset = AE_HX711_getGram(0, 30);
 }
 
 void loop()
@@ -44,7 +44,7 @@ void loop()
 	float data;
 	char S1[20];
 	char s[20];
-	data = AE_HX711_getGram(5);
+	data = AE_HX711_getGram(0, 5);
 	sprintf(S1, "%s [g] (0x%4x)", dtostrf((data - offset), 5, 3, s), AE_HX711_Read());
 	Serial.println(S1);
 }
@@ -90,14 +90,20 @@ long AE_HX711_Read(void)
 	return data ^ 0x800000;
 }
 
-long AE_HX711_Averaging(long adc, char num)
+long AE_HX711_Averaging(char num)
 {
 	long sum = 0;
 	for (int i = 0; i < num; i++) sum += AE_HX711_Read();
 	return sum / num;
 }
 
-float AE_HX711_getGram(char num)
+/**
+* 指定センサーのグラム数を取得する関数
+* @param pin_num 指定センサーの番号
+* @param num 平均化する回数
+* @return グラム数
+*/
+float AE_HX711_getGram(int pin_num, char num)
 {
 #define HX711_R1  20000.0f
 #define HX711_R2  8200.0f
@@ -109,7 +115,7 @@ float AE_HX711_getGram(char num)
 
 	float data;
 
-	data = AE_HX711_Averaging(AE_HX711_Read(), num)*HX711_ADC1bit;
+	data = AE_HX711_Averaging(num)*HX711_ADC1bit;
 	//Serial.println( HX711_AVDD);
 	//Serial.println( HX711_ADC1bit);
 	//Serial.println( HX711_SCALE);
