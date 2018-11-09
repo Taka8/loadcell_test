@@ -12,7 +12,7 @@ float AE_HX711_getGram(char num);
 #define OUT_VOL   0.001f      //定格出力 [V]
 #define LOAD      120000.0f   //定格容量 [g]
 
-#define CONNECTED_SENSOR_NUM 2
+#define CONNECTED_SENSOR_NUM 4
 
 struct LoadcellPin {
 	int dout;
@@ -23,6 +23,8 @@ struct LoadcellPin {
 struct LoadcellPin pins[CONNECTED_SENSOR_NUM] =
 {
 	{ 2, 3 },
+	{ 4, 5 },
+	{ 7, 6 },
 	{ 8, 9 }
 };
 
@@ -68,20 +70,22 @@ void AE_HX711_Reset(void)
 long AE_HX711_Read(void)
 {
 	long data = 0;
-	while (digitalRead(pins[0].dout) != 0);
+#define PIN_NUM 2
+
+	while (digitalRead(pins[PIN_NUM].dout) != 0);
 	delayMicroseconds(10);
 	for (int i = 0; i < 24; i++)
 	{
-		digitalWrite(pins[0].slk, 1);
+		digitalWrite(pins[PIN_NUM].slk, 1);
 		delayMicroseconds(5);
-		digitalWrite(pins[0].slk, 0);
+		digitalWrite(pins[PIN_NUM].slk, 0);
 		delayMicroseconds(5);
-		data = (data << 1) | (digitalRead(pins[0].dout));
+		data = (data << 1) | (digitalRead(pins[PIN_NUM].dout));
 	}
 	//Serial.println(data,HEX);
-	digitalWrite(pins[0].slk, 1);
+	digitalWrite(pins[PIN_NUM].slk, 1);
 	delayMicroseconds(10);
-	digitalWrite(pins[0].slk, 0);
+	digitalWrite(pins[PIN_NUM].slk, 0);
 	delayMicroseconds(10);
 	return data ^ 0x800000;
 }
@@ -98,18 +102,18 @@ float AE_HX711_getGram(char num)
 #define HX711_R1  20000.0f
 #define HX711_R2  8200.0f
 #define HX711_VBG 1.25f
-#define HX711_AVDD      4.2987f//(HX711_VBG*((HX711_R1+HX711_R2)/HX711_R2))
-#define HX711_ADC1bit   HX711_AVDD/16777216 //16777216=(2^24)
+#define HX711_AVDD      4.2987f					//(HX711_VBG*((HX711_R1+HX711_R2)/HX711_R2))
+#define HX711_ADC1bit   HX711_AVDD/16777216		//16777216=(2^24)
 #define HX711_PGA 128
 #define HX711_SCALE     (OUT_VOL * HX711_AVDD / LOAD *HX711_PGA)
 
 	float data;
 
 	data = AE_HX711_Averaging(AE_HX711_Read(), num)*HX711_ADC1bit;
-	//Serial.println( HX711_AVDD);   
-	//Serial.println( HX711_ADC1bit);   
-	//Serial.println( HX711_SCALE);   
-	//Serial.println( data);   
+	//Serial.println( HX711_AVDD);
+	//Serial.println( HX711_ADC1bit);
+	//Serial.println( HX711_SCALE);
+	//Serial.println( data);
 	data = data / HX711_SCALE;
 
 
