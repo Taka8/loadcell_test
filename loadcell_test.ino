@@ -53,9 +53,12 @@ void loop()
 	float data;
 	char S1[20];
 	char s[20];
-	data = AE_HX711_getGram(0, 5);
-	sprintf(S1, "%s [g] (0x%4x)", dtostrf((data - offsets[0]), 5, 3, s), AE_HX711_Read(0));
-	Serial.println(S1);
+	for (int i = 0; i < CONNECTED_SENSOR_NUM; i++) {
+		data = AE_HX711_getGram(i, 5);
+		sprintf(S1, "%s [g] ", dtostrf((data - offsets[i]), 5, 3, s));
+		Serial.print(S1);
+	}
+	Serial.println();
 }
 
 void AE_HX711_Init(void)
