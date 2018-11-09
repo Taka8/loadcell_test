@@ -28,7 +28,7 @@ struct LoadcellPin pins[CONNECTED_SENSOR_NUM] =
 	{ 8, 9 }
 };
 
-float offset;
+float offsets[4];
 
 void setup() {
 
@@ -36,7 +36,16 @@ void setup() {
 	Serial.println("AE_HX711 test");
 	AE_HX711_Init();
 	AE_HX711_Reset();
-	offset = AE_HX711_getGram(0, 30);
+	// オフセットの作成
+	/*
+	for (int i = 0; i < CONNECTED_SENSOR_NUM; i++) {
+		offsets[i] = AE_HX711_getGram(i, 30);
+	}
+	*/
+	offsets[0] = AE_HX711_getGram(0, 30);
+	offsets[1] = AE_HX711_getGram(1, 30);
+	offsets[2] = AE_HX711_getGram(2, 30);
+	offsets[3] = AE_HX711_getGram(3, 30);
 }
 
 void loop()
@@ -45,7 +54,7 @@ void loop()
 	char S1[20];
 	char s[20];
 	data = AE_HX711_getGram(0, 5);
-	sprintf(S1, "%s [g] (0x%4x)", dtostrf((data - offset), 5, 3, s), AE_HX711_Read(0));
+	sprintf(S1, "%s [g] (0x%4x)", dtostrf((data - offsets[0]), 5, 3, s), AE_HX711_Read(0));
 	Serial.println(S1);
 }
 
