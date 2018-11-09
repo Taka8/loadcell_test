@@ -45,7 +45,7 @@ void loop()
 	char S1[20];
 	char s[20];
 	data = AE_HX711_getGram(0, 5);
-	sprintf(S1, "%s [g] (0x%4x)", dtostrf((data - offset), 5, 3, s), AE_HX711_Read());
+	sprintf(S1, "%s [g] (0x%4x)", dtostrf((data - offset), 5, 3, s), AE_HX711_Read(0));
 	Serial.println(S1);
 }
 
@@ -67,33 +67,32 @@ void AE_HX711_Reset(void)
 	}
 }
 
-long AE_HX711_Read(void)
+long AE_HX711_Read(int pin_num)
 {
 	long data = 0;
-#define PIN_NUM 2
 
-	while (digitalRead(pins[PIN_NUM].dout) != 0);
+	while (digitalRead(pins[pin_num].dout) != 0);
 	delayMicroseconds(10);
 	for (int i = 0; i < 24; i++)
 	{
-		digitalWrite(pins[PIN_NUM].slk, 1);
+		digitalWrite(pins[pin_num].slk, 1);
 		delayMicroseconds(5);
-		digitalWrite(pins[PIN_NUM].slk, 0);
+		digitalWrite(pins[pin_num].slk, 0);
 		delayMicroseconds(5);
-		data = (data << 1) | (digitalRead(pins[PIN_NUM].dout));
+		data = (data << 1) | (digitalRead(pins[pin_num].dout));
 	}
 	//Serial.println(data,HEX);
-	digitalWrite(pins[PIN_NUM].slk, 1);
+	digitalWrite(pins[pin_num].slk, 1);
 	delayMicroseconds(10);
-	digitalWrite(pins[PIN_NUM].slk, 0);
+	digitalWrite(pins[pin_num].slk, 0);
 	delayMicroseconds(10);
 	return data ^ 0x800000;
 }
 
-long AE_HX711_Averaging(char num)
+long AE_HX711_Averaging(int pin_num, char num)
 {
 	long sum = 0;
-	for (int i = 0; i < num; i++) sum += AE_HX711_Read();
+	for (int i = 0; i < num; i++) sum += AE_HX711_Read(pin_num);
 	return sum / num;
 }
 
@@ -115,7 +114,7 @@ float AE_HX711_getGram(int pin_num, char num)
 
 	float data;
 
-	data = AE_HX711_Averaging(num)*HX711_ADC1bit;
+	data = AE_HX711_Averaging(pin_num, num)*HX711_ADC1bit;
 	//Serial.println( HX711_AVDD);
 	//Serial.println( HX711_ADC1bit);
 	//Serial.println( HX711_SCALE);
