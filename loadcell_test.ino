@@ -2,9 +2,9 @@
 
 void AE_HX711_Init(void);
 void AE_HX711_Reset(void);
-long AE_HX711_Read(void);
-long AE_HX711_Averaging(long adc, char num);
-float AE_HX711_getGram(char num);
+long AE_HX711_Read(int pin_num);
+long AE_HX711_Averaging(int pin_num, char num);
+float AE_HX711_getGram(int pin_num, char num);
 
 //---------------------------------------------------//
 // ロードセル　シングルポイント（ ビーム型）　ＳＣ６０１　１２０ｋＧ [P-12035]
@@ -22,30 +22,25 @@ struct LoadcellPin {
 // ピンの設定
 struct LoadcellPin pins[CONNECTED_SENSOR_NUM] =
 {
-	{ 2, 3 },
-	{ 4, 5 },
-	{ 7, 6 },
-	{ 8, 9 }
+	{ 2, 3 },			// 1 番目のセンサー
+	{ 4, 5 },			// 2 番目のセンサー
+	{ 7, 6 },			// 3 番目のセンサー
+	{ 8, 9 }			// 4 番目のセンサー
 };
 
-float offsets[4];
+float offsets[4];		// オフセット値の値
 
 void setup() {
 
 	Serial.begin(9600);
-	Serial.println("AE_HX711 test");
+	Serial.println("AE_HX711 start");
 	AE_HX711_Init();
 	AE_HX711_Reset();
+
 	// オフセットの作成
-	/*
 	for (int i = 0; i < CONNECTED_SENSOR_NUM; i++) {
 		offsets[i] = AE_HX711_getGram(i, 30);
 	}
-	*/
-	offsets[0] = AE_HX711_getGram(0, 30);
-	offsets[1] = AE_HX711_getGram(1, 30);
-	offsets[2] = AE_HX711_getGram(2, 30);
-	offsets[3] = AE_HX711_getGram(3, 30);
 }
 
 void loop()
@@ -135,6 +130,7 @@ float AE_HX711_getGram(int pin_num, char num)
 
 
 	return data;
+
 }
 
 
