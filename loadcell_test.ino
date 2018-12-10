@@ -49,7 +49,7 @@ void loop()
 	char S1[20];
 	char s[20];
 	for (int i = 0; i < CONNECTED_SENSOR_NUM; i++) {
-		data = AE_HX711_getGram(i, 5);
+		data = AE_HX711_getGram(i, 1);
 		sprintf(S1, "%s\t", dtostrf((data - offsets[i]), 5, 3, s));
 		Serial.print(S1);
 	}
@@ -68,9 +68,9 @@ void AE_HX711_Reset(void)
 {
 	for (int i = 0; i < CONNECTED_SENSOR_NUM; i++) {
 		digitalWrite(pins[i].slk, 1);
-		delayMicroseconds(100);
+		delayMicroseconds(1);
 		digitalWrite(pins[i].slk, 0);
-		delayMicroseconds(100);
+		delayMicroseconds(1);
 	}
 }
 
@@ -79,20 +79,20 @@ long AE_HX711_Read(int pin_num)
 	long data = 0;
 
 	while (digitalRead(pins[pin_num].dout) != 0);
-	delayMicroseconds(10);
+	delayMicroseconds(1);
 	for (int i = 0; i < 24; i++)
 	{
 		digitalWrite(pins[pin_num].slk, 1);
-		delayMicroseconds(5);
+		delayMicroseconds(1);
 		digitalWrite(pins[pin_num].slk, 0);
-		delayMicroseconds(5);
+		delayMicroseconds(1);
 		data = (data << 1) | (digitalRead(pins[pin_num].dout));
 	}
-	//Serial.println(data,HEX);
+
 	digitalWrite(pins[pin_num].slk, 1);
-	delayMicroseconds(10);
+	delayMicroseconds(1);
 	digitalWrite(pins[pin_num].slk, 0);
-	delayMicroseconds(10);
+	delayMicroseconds(1);
 	return data ^ 0x800000;
 }
 
@@ -128,8 +128,7 @@ float AE_HX711_getGram(int pin_num, char num)
 	//Serial.println( data);
 	data = data / HX711_SCALE;
 
-
-	return data;
+	return -data;
 
 }
 
